@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 import pytest
 
 
@@ -43,16 +41,6 @@ def test_md_to_pdf_returns_pdf(client, chromium_ready):
     assert resp.status_code == 200, resp.text
     assert resp.headers["content-type"].startswith("application/pdf")
     assert resp.content[:5] == b"%PDF-"
-
-
-def test_md_to_pdf_rejects_unknown_theme(client):
-    resp = client.post(
-        "/api/md-to-pdf",
-        files={"file": ("doc.md", SAMPLE_MD, "text/markdown")},
-        data={"options": json.dumps({"theme": "does-not-exist"})},
-    )
-    assert resp.status_code == 400
-    assert resp.json()["error"]["code"] == "unknown_theme"
 
 
 def test_md_to_pdf_rejects_non_md(client):

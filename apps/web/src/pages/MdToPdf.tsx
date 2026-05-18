@@ -4,7 +4,6 @@ import { Button } from '../components/Button'
 import { ConvertButton } from '../components/ConvertButton'
 import { DropZone } from '../components/DropZone'
 import { MarkdownPreview } from '../components/MarkdownPreview'
-import { ThemePicker } from '../components/ThemePicker'
 import { Toast } from '../components/Toast'
 import { useBatchConvert, type BatchItem } from '../hooks/useBatchConvert'
 import { useTranslation } from '../i18n'
@@ -13,12 +12,11 @@ import { convertMdToPdf } from '../lib/api'
 export function MdToPdf() {
   const { t } = useTranslation()
   const [pasted, setPasted] = useState('')
-  const [theme, setTheme] = useState('default')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [toast, setToast] = useState<{ kind: 'ok' | 'warn'; message: string } | null>(null)
 
   const batch = useBatchConvert<Blob>({
-    convert: (file, signal) => convertMdToPdf(file, { theme }, signal),
+    convert: (file, signal) => convertMdToPdf(file, {}, signal),
     toBlobUrl: (blob) => URL.createObjectURL(blob),
   })
 
@@ -85,7 +83,6 @@ export function MdToPdf() {
             onChange={(e) => setPasted(e.target.value)}
             aria-label={t.mdToPdf.pasteLabel}
           />
-          <ThemePicker value={theme} onChange={setTheme} />
           <div className="stack__actions">
             <ConvertButton
               status={batch.running ? 'loading' : 'idle'}

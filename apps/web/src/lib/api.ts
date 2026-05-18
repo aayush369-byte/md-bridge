@@ -7,7 +7,6 @@ export interface PdfToMdOptions {
 
 export interface MdToPdfOptions {
   lang?: string
-  theme?: string
 }
 
 export interface FrontMatter {
@@ -45,12 +44,6 @@ export interface InspectPdfResponse {
   fonts: FontUsage[]
   tagged: boolean
   needs_ocr: boolean
-}
-
-export interface Theme {
-  id: string
-  name: string
-  preview_url?: string | null
 }
 
 export interface ApiErrorBody {
@@ -122,10 +115,4 @@ export async function inspectPdf(file: File, signal?: AbortSignal): Promise<Insp
   const resp = await fetch('/api/inspect-pdf', { method: 'POST', body: fd, signal })
   if (!resp.ok) await readError(resp)
   return (await resp.json()) as InspectPdfResponse
-}
-
-export async function listThemes(signal?: AbortSignal): Promise<Theme[]> {
-  const resp = await fetch('/api/themes', { signal })
-  if (!resp.ok) await readError(resp)
-  return (await resp.json()) as Theme[]
 }

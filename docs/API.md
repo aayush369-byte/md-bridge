@@ -24,7 +24,8 @@ interactive playground, the running API serves Swagger UI at
   }
   ```
 
-- Hard limits: **500 MB per upload**, **60 s per conversion**, no persistence.
+- Hard limits: **500 MB per upload**, no persistence. The nginx reverse
+  proxy waits up to 10 minutes per request, which covers very large PDFs.
 
 ---
 
@@ -138,22 +139,20 @@ Render Markdown into a PDF through headless Chromium.
 
 ```json
 {
-  "theme": "default",
   "lang": "en"
 }
 ```
 
-- `theme` (default `"default"`): name of a `.css` file under
-  `packages/markdown-to-pdf/templates/`. Use `GET /api/themes` to discover
-  what is installed.
 - `lang` (default `"pt-BR"`): written into `<html lang>`.
+
+The renderer always uses the bundled A4 stylesheet at
+`packages/markdown-to-pdf/templates/default.css`.
 
 ### Example: render and save
 
 ```bash
 curl -X POST http://localhost:8000/api/md-to-pdf \
   -F "file=@notes.md" \
-  -F 'options={"theme":"default"}' \
   --output notes.pdf
 ```
 
@@ -173,7 +172,6 @@ content-disposition: attachment; filename="notes.pdf"
 | status | code            | when                                                |
 | ------ | --------------- | --------------------------------------------------- |
 | 400    | `wrong_file_type` | uploaded file does not end in `.md`               |
-| 400    | `unknown_theme` | the requested theme is not under `templates/`       |
 | 400    | `invalid_markdown` | upload is not valid UTF-8                        |
 | 500    | `render_failed` | Chromium crashed or a CSS template is missing       |
 
@@ -220,31 +218,6 @@ curl -X POST http://localhost:8000/api/inspect-pdf \
 
 ---
 
-## `GET /api/themes`
-
-List CSS themes available for Markdown to PDF rendering.
-
-### Request
-
-```bash
-curl http://localhost:8000/api/themes
-```
-
-### Response
-
-```json
-[
-  { "id": "default", "name": "Default A4", "preview_url": null }
-]
-```
-
-To add a new theme, drop a `<name>.css` into
-`packages/markdown-to-pdf/templates/`. It will show up on the next call,
-no restart needed. The default theme is always layered first; custom themes
-only need to override the parts they care about.
-
----
-
 ## End-to-end example: round-trip
 
 ```bash
@@ -263,9 +236,8 @@ curl -X POST http://localhost:8000/api/pdf-to-md \
 # 4. Pull the `md` field into a real .md file
 python -c "import json,sys; print(json.load(open('paper.md.json'))['md'])" > paper.md
 
-# 5. Render it back to PDF with the default theme
+# 5. Render it back to PDF
 curl -X POST http://localhost:8000/api/md-to-pdf \
   -F "file=@paper.md" \
-  -F 'options={"theme":"default"}' \
   --output paper.rendered.pdf
 ```

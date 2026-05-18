@@ -86,15 +86,8 @@ interface Dictionary {
     chars: string
     needsOcr: string
   }
-  theme: {
-    legend: string
-    loading: string
-    none: string
-    errorPrefix: string
-  }
   errors: {
     unknown: string
-    themesUnavailable: string
   }
   languageSwitcher: {
     label: string
@@ -119,7 +112,7 @@ const en: Dictionary = {
       },
       mdToPdf: {
         title: 'Markdown → PDF',
-        body: 'Renders via headless Chromium with a CSS theme of your choice. Consistent output, no GTK or wkhtmltopdf.',
+        body: 'Renders via headless Chromium with a CSS theme. Consistent output, no GTK or wkhtmltopdf.',
         cta: 'Generate a PDF',
       },
     },
@@ -156,7 +149,7 @@ const en: Dictionary = {
       p1:
         'From PDF to Markdown: the app reads the font size and layout of the PDF to figure out what is a heading, what is a paragraph, what is a list, and what is a table. It then writes a clean Markdown file with that structure preserved.',
       p2:
-        'From Markdown to PDF: the app converts the text into a styled web page and prints that page to PDF using the same engine browsers use. You can pick a visual theme before converting.',
+        'From Markdown to PDF: the app converts the text into a styled web page and prints that page to PDF using the same engine browsers use.',
     },
     limits: {
       title: 'Known limits',
@@ -211,15 +204,8 @@ const en: Dictionary = {
     needsOcr:
       'Little extractable text. PDF is likely scanned — run OCR before converting.',
   },
-  theme: {
-    legend: 'Theme',
-    loading: 'Loading themes...',
-    none: 'No themes available.',
-    errorPrefix: 'Could not load themes:',
-  },
   errors: {
     unknown: 'Unknown failure',
-    themesUnavailable: 'Could not load themes',
   },
   languageSwitcher: {
     label: 'Language',
@@ -244,7 +230,7 @@ const pt: Dictionary = {
       },
       mdToPdf: {
         title: 'Markdown → PDF',
-        body: 'Renderiza via Chromium headless com tema CSS escolhido por você. Saída consistente, sem GTK ou wkhtmltopdf.',
+        body: 'Renderiza via Chromium headless com tema CSS. Saída consistente, sem GTK ou wkhtmltopdf.',
         cta: 'Gerar um PDF',
       },
     },
@@ -281,7 +267,7 @@ const pt: Dictionary = {
       p1:
         'De PDF para Markdown: o app lê o tamanho da fonte e a posição do texto no PDF para descobrir o que é título, parágrafo, lista ou tabela. Depois gera um Markdown limpo com essa estrutura preservada.',
       p2:
-        'De Markdown para PDF: o app transforma o texto em uma página web estilizada e imprime essa página como PDF usando o mesmo motor dos navegadores. Você escolhe o tema visual antes de converter.',
+        'De Markdown para PDF: o app transforma o texto em uma página web estilizada e imprime essa página como PDF usando o mesmo motor dos navegadores.',
     },
     limits: {
       title: 'Limites conhecidos',
@@ -336,15 +322,8 @@ const pt: Dictionary = {
     needsOcr:
       'Pouco texto extraível. PDF provavelmente escaneado, rode OCR antes de converter.',
   },
-  theme: {
-    legend: 'Tema',
-    loading: 'Carregando temas...',
-    none: 'Nenhum tema disponível.',
-    errorPrefix: 'Não foi possível carregar temas:',
-  },
   errors: {
     unknown: 'Falha desconhecida',
-    themesUnavailable: 'Não foi possível carregar temas',
   },
   languageSwitcher: {
     label: 'Idioma',

@@ -16,28 +16,15 @@ from app.schemas.convert import MdToPdfOptions
 from app.services.packages_loader import md_to_pdf_module
 
 
-def _css_paths_for_theme(theme_id: str) -> list[Path]:
+def _default_css_paths() -> list[Path]:
     default_css = MD_TO_PDF_TEMPLATES / "default.css"
-    if theme_id == "default":
-        if not default_css.exists():
-            raise ApiError(
-                500,
-                "missing_template",
-                f"default theme stylesheet not found at {default_css}",
-            )
-        return [default_css]
-
-    extra = MD_TO_PDF_TEMPLATES / f"{theme_id}.css"
-    if not extra.exists():
+    if not default_css.exists():
         raise ApiError(
-            400,
-            "unknown_theme",
-            f"theme '{theme_id}' not found",
-            detail={"available": [p.stem for p in MD_TO_PDF_TEMPLATES.glob("*.css")]},
+            500,
+            "missing_template",
+            f"default theme stylesheet not found at {default_css}",
         )
-    # Layer the chosen theme on top of the default so theme files only need
-    # to override what they care about.
-    return [default_css, extra] if default_css.exists() else [extra]
+    return [default_css]
 
 
 @contextmanager
@@ -53,7 +40,7 @@ def render_md_bytes(
     options: MdToPdfOptions | None = None,
 ) -> bytes:
     opts = options or MdToPdfOptions()
-    css_paths = _css_paths_for_theme(opts.theme)
+    css_paths = _default_css_paths()
     mod = md_to_pdf_module()
 
     with _tempdir() as tmp:

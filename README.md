@@ -12,7 +12,7 @@ together, and a small React app drives the whole thing from the browser.
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![Node 20+](https://img.shields.io/badge/node-20%2B-43853d.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-135%20total-brightgreen.svg)](#testing)
+[![Tests](https://img.shields.io/badge/tests-130%20total-brightgreen.svg)](#testing)
 
 ![Home page screenshot](docs/screenshots/home-en.png)
 
@@ -39,9 +39,8 @@ together, and a small React app drives the whole thing from the browser.
 - **PDF to Markdown** with heading detection (font size plus PDF outline), list
   recovery (bullet glyphs and numbered patterns), table extraction via
   PyMuPDF's `find_tables`, and YAML front matter for metadata.
-- **Markdown to PDF** rendered through headless Chromium (Playwright) with
-  swappable CSS themes. Drop a `.css` into `packages/markdown-to-pdf/templates/`
-  and it appears in the UI.
+- **Markdown to PDF** rendered through headless Chromium (Playwright) using
+  a bundled A4 stylesheet at `packages/markdown-to-pdf/templates/default.css`.
 - **Batch mode**: drop one file or a whole folder. The UI lists every file,
   converts them in sequence, and lets you download each result as it lands.
 - **`/api/inspect-pdf`** returns diagnostics (fonts, sizes, tagged-PDF flag,
@@ -167,29 +166,29 @@ apps/api/.venv/Scripts/python.exe -m uvicorn app.main:app --port 8000 --app-dir 
 
 ## Testing
 
-The test suite follows a classic pyramid with 135 tests in total. No mocks
+The test suite follows a classic pyramid with 130 tests in total. No mocks
 of the API, fetch, or browser primitives: integration runs against the real
 FastAPI TestClient and E2E drives a real Chromium against a real backend.
 
 | Tier        | Count | What it covers                                                   |
 | ----------- | ----- | ---------------------------------------------------------------- |
-| Unit        | 87    | 47 backend (schemas, helpers, errors, heuristics) + 40 frontend (components, hooks, i18n) |
-| Integration | 40    | 17 backend with FastAPI TestClient + 8 regression goldens + 15 frontend page tests (Home, About, Navigation, batch panel) |
-| E2E         | 8     | Playwright real-browser specs: ISTQB conversion, md-to-pdf, themes, language toggle, batch with two files |
+| Unit        | 86    | 46 backend (schemas, helpers, errors, heuristics) + 40 frontend (components, hooks, i18n) |
+| Integration | 38    | 15 backend with FastAPI TestClient + 8 regression goldens + 15 frontend page tests (Home, About, Navigation, batch panel) |
+| E2E         | 6     | Playwright real-browser specs: ISTQB conversion, md-to-pdf, language toggle, batch with two files |
 
 Run them with:
 
 ```bash
-npm run test:unit                   # 47 backend + 40 frontend = 87 unit tests
+npm run test:unit                   # 46 backend + 40 frontend = 86 unit tests
 npm run test:unit:api               # backend unit (pytest, apps/api/tests/unit)
 npm run test:unit:web               # frontend unit (Vitest)
 
-npm run test:integration            # backend + regression goldens + frontend pages = 40
+npm run test:integration            # backend + regression goldens + frontend pages = 38
 npm run test:integration:api        # FastAPI TestClient (apps/api/tests/integration)
 npm run test:integration:regression # 8 golden-file regressions (tests/regression)
 npm run test:integration:web        # frontend page tests (Home, About, Navigation, batch)
 
-npm run test:e2e                    # 8 Playwright real-browser specs
+npm run test:e2e                    # 6 Playwright real-browser specs
 
 npm run test:all                    # everything in sequence
 ```
@@ -229,7 +228,6 @@ Quick sample, render Markdown back to PDF:
 ```bash
 curl -X POST http://localhost:8000/api/md-to-pdf \
   -F "file=@notes.md" \
-  -F 'options={"theme":"default"}' \
   --output notes.pdf
 ```
 
@@ -260,17 +258,11 @@ To add a new locale:
 
 The header toggle picks the new locale up automatically.
 
-## Themes (Markdown to PDF)
-
-Themes are plain CSS files under `packages/markdown-to-pdf/templates/`. To
-add one, drop `<name>.css` into that folder; the API returns it from
-`GET /api/themes` and the UI shows it as an option. The default theme is
-layered first, so a custom theme only has to override what it cares about.
-
 ## Limits
 
 - 500 MB cap per upload
-- 60 s timeout per conversion
+- nginx reverse proxy waits up to 10 minutes per request, which fits very
+  large PDFs end-to-end
 - No OCR yet: scanned PDFs need Tesseract before being submitted
 - Tables with merged cells can be flattened by the heuristic extractor
 

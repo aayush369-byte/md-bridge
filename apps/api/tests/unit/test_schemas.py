@@ -11,7 +11,6 @@ from app.schemas.convert import (
     MdToPdfOptions,
     PdfToMdOptions,
     PdfToMdResponse,
-    Theme,
 )
 
 
@@ -38,14 +37,11 @@ def test_pdf_to_md_options_rejects_non_bool():
 def test_md_to_pdf_options_defaults():
     opts = MdToPdfOptions()
     assert opts.lang == "pt-BR"
-    assert opts.theme == "default"
 
 
-def test_md_to_pdf_options_accepts_arbitrary_theme_id():
-    # Theme validation is the route's job; the schema lets any string through
-    # because new themes get dropped into the templates folder at runtime.
-    opts = MdToPdfOptions.model_validate({"theme": "editorial"})
-    assert opts.theme == "editorial"
+def test_md_to_pdf_options_rejects_unknown_field():
+    with pytest.raises(ValidationError):
+        MdToPdfOptions.model_validate({"theme": "editorial"})
 
 
 def test_pdf_to_md_response_default_collections():
@@ -74,8 +70,3 @@ def test_inspect_pdf_response_round_trips():
     parsed = InspectPdfResponse.model_validate(payload)
     assert parsed.pages == 4
     assert parsed.fonts[0].name == "Body"
-
-
-def test_theme_optional_preview():
-    t = Theme(id="default", name="Default A4")
-    assert t.preview_url is None

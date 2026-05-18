@@ -66,9 +66,8 @@ Every failure returns:
 MD_TO_PDF_DESCRIPTION = """
 Render a Markdown file (UTF-8) into a PDF through headless Chromium.
 
-The chosen `theme` resolves to a CSS file in
-`packages/markdown-to-pdf/templates/`. Theme files are layered on top of the
-`default` theme, so a custom theme only has to override what it cares about.
+The rendering uses a bundled A4 CSS theme
+(`packages/markdown-to-pdf/templates/default.css`).
 
 ### Request
 
@@ -77,7 +76,7 @@ The chosen `theme` resolves to a CSS file in
 | field | required | description |
 |---|---|---|
 | `file` | yes | A `.md` file (max 500 MB), UTF-8. |
-| `options` | no | JSON: `{ "theme": "default", "lang": "en" }`. |
+| `options` | no | JSON: `{ "lang": "en" }`. |
 
 ### Response
 
@@ -89,7 +88,6 @@ Binary `application/pdf`. The `Content-Disposition` header carries a
 ```bash
 curl -X POST http://localhost:8000/api/md-to-pdf \\
   -F "file=@notes.md" \\
-  -F 'options={"theme":"default"}' \\
   --output notes.pdf
 ```
 """
@@ -243,29 +241,14 @@ async def pdf_to_md(
             "content": {"application/pdf": {"schema": {"type": "string", "format": "binary"}}},
         },
         400: {
-            "description": "Wrong file type or unknown theme.",
+            "description": "Wrong file type.",
             "content": {
                 "application/json": {
-                    "examples": {
-                        "wrong_type": {
-                            "summary": "Not a .md file",
-                            "value": {
-                                "error": {
-                                    "code": "wrong_file_type",
-                                    "message": "Expected a Markdown file (.md) but got: notes.txt",
-                                }
-                            },
-                        },
-                        "unknown_theme": {
-                            "summary": "Theme not installed",
-                            "value": {
-                                "error": {
-                                    "code": "unknown_theme",
-                                    "message": "theme 'mythic' not found",
-                                    "detail": {"available": ["default"]},
-                                }
-                            },
-                        },
+                    "example": {
+                        "error": {
+                            "code": "wrong_file_type",
+                            "message": "Expected a Markdown file (.md) but got: notes.txt",
+                        }
                     }
                 }
             },
@@ -279,7 +262,7 @@ async def md_to_pdf(
     file: UploadFile = File(..., description="The Markdown file to render."),
     options: str | None = Form(
         default=None,
-        description='Optional JSON string. Example: `{"theme": "default", "lang": "en"}`.',
+        description='Optional JSON string. Example: `{"lang": "en"}`.',
     ),
 ) -> Response:
     opts = _read_options(options, MdToPdfOptions)
@@ -290,11 +273,10 @@ async def md_to_pdf(
     )
     elapsed_ms = int((time.perf_counter() - started) * 1000)
     log.info(
-        "md-to-pdf filename=%s bytes=%d duration_ms=%d theme=%s",
+        "md-to-pdf filename=%s bytes=%d duration_ms=%d",
         file.filename,
         len(md_bytes),
         elapsed_ms,
-        opts.theme,
     )
     out_name = (file.filename or "document.md").rsplit(".", 1)[0] + ".pdf"
     return Response(

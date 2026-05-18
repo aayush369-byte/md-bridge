@@ -15,7 +15,7 @@ from app.errors import (
     http_exception_handler,
     validation_exception_handler,
 )
-from app.routes import convert, health, inspect, themes
+from app.routes import convert, health, inspect
 
 
 API_DESCRIPTION = """
@@ -28,7 +28,6 @@ output: same input, same output, every run.
 - **`POST /api/pdf-to-md`**: extract structured Markdown from a PDF.
 - **`POST /api/md-to-pdf`**: render a Markdown file to PDF through Chromium.
 - **`POST /api/inspect-pdf`**: return diagnostics about a PDF (fonts, sizes, tagged-PDF check).
-- **`GET  /api/themes`**: list CSS themes available for Markdown to PDF rendering.
 - **`GET  /api/health`**: liveness probe.
 
 ## Try it out
@@ -43,7 +42,6 @@ A walkthrough with `curl` examples lives in
 ## Limits
 
 - Upload cap: **500 MB** per request.
-- Per-request timeout: **60 seconds**.
 - No persistence: every file is processed in a temporary directory and removed
   before the response is returned.
 - No OCR (v1): scanned PDFs need Tesseract before being submitted.
@@ -76,10 +74,6 @@ def create_app() -> FastAPI:
                 "name": "inspect",
                 "description": "Read-only diagnostics about an uploaded PDF.",
             },
-            {
-                "name": "themes",
-                "description": "CSS themes available for Markdown to PDF rendering.",
-            },
         ],
         docs_url="/docs",
         redoc_url="/redoc",
@@ -100,7 +94,6 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(convert.router)
     app.include_router(inspect.router)
-    app.include_router(themes.router)
 
     return app
 

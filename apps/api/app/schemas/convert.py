@@ -22,7 +22,6 @@ class MdToPdfOptions(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     lang: SupportedLang = "pt-BR"
-    theme: str = "default"
 
 
 class FrontMatter(BaseModel):
@@ -60,9 +59,3 @@ class InspectPdfResponse(BaseModel):
     fonts: list[FontUsage]
     tagged: bool
     needs_ocr: bool
-
-
-class Theme(BaseModel):
-    id: str
-    name: str
-    preview_url: str | None = None
