@@ -1,10 +1,28 @@
 import { defineConfig } from '@playwright/test'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(here, '..', '..')
-const apiPython = path.join(repoRoot, 'apps', 'api', '.venv', 'Scripts', 'python.exe')
+
+/**
+ * Resolve the Python binary used to boot the API for E2E.
+ *
+ * - On a Windows dev machine we expect `apps/api/.venv/Scripts/python.exe`.
+ * - On Linux / macOS dev machines we expect `apps/api/.venv/bin/python`.
+ * - On CI (GitHub Actions) we install the package globally with `pip install -e`,
+ *   so we fall back to the `python` binary on PATH.
+ */
+function resolvePython(): string {
+  const winVenv = path.join(repoRoot, 'apps', 'api', '.venv', 'Scripts', 'python.exe')
+  const nixVenv = path.join(repoRoot, 'apps', 'api', '.venv', 'bin', 'python')
+  if (existsSync(winVenv)) return winVenv
+  if (existsSync(nixVenv)) return nixVenv
+  return 'python'
+}
+
+const apiPython = resolvePython()
 
 export default defineConfig({
   testDir: './e2e',
