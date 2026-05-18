@@ -18,7 +18,7 @@ describe('Home page', () => {
   it('renders the hero headline in English', () => {
     renderHome()
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      /honest conversions/i,
+      /convert pdf and markdown locally/i,
     )
   })
 
@@ -41,6 +41,6 @@ describe('Home page', () => {
         </MemoryRouter>
       </I18nProvider>,
     )
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/honestas/i)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/converta pdf e markdown local/i)
   })
 })

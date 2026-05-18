@@ -8,10 +8,13 @@ heuristics: same input, same output, every run. PyMuPDF reads PDFs, headless
 Chromium renders Markdown back into print-ready PDFs, FastAPI ties it all
 together, and a small React app drives the whole thing from the browser.
 
-[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/vinicq/md-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/vinicq/md-bridge/actions/workflows/ci.yml)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![Node 20+](https://img.shields.io/badge/node-20%2B-43853d.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-133%20total-brightgreen.svg)](#testing)
+
+![Home page screenshot](docs/screenshots/home-en.png)
 
 ---
 
@@ -26,6 +29,7 @@ together, and a small React app drives the whole thing from the browser.
 - [Running it](#running-it)
 - [Testing](#testing)
 - [API reference](#api-reference)
+- [Screenshots](#screenshots)
 - [Internationalization](#internationalization)
 - [Contributing](#contributing)
 - [License](#license)
@@ -224,6 +228,17 @@ curl -X POST http://localhost:8000/api/md-to-pdf \
   -F 'options={"theme":"default"}' \
   --output notes.pdf
 ```
+
+## Screenshots
+
+| | |
+|---|---|
+| **Home page** (English) | **Home page** (Portuguese) |
+| ![Home EN](docs/screenshots/home-en.png) | ![Home PT](docs/screenshots/home-pt.png) |
+| **PDF to Markdown** flow | **Markdown to PDF** flow |
+| ![PDF to MD](docs/screenshots/pdf-to-md.png) | ![MD to PDF](docs/screenshots/md-to-pdf.png) |
+| **About page** | **Swagger UI** at `/docs` |
+| ![About](docs/screenshots/about.png) | ![Swagger](docs/screenshots/swagger.png) |
 
 ## Internationalization
 

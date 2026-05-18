@@ -30,7 +30,7 @@ function renderApp(initialPath = '/') {
 describe('Navigation + LanguageSwitcher integration', () => {
   it('navigates from Home to About via the header link', async () => {
     renderApp('/')
-    expect(screen.getByRole('heading', { level: 1, name: /honest conversions/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: /convert pdf and markdown locally/i })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('link', { name: /^about$/i }))
     expect(screen.getByRole('heading', { level: 1, name: /about md-bridge/i })).toBeInTheDocument()
   })
@@ -38,7 +38,7 @@ describe('Navigation + LanguageSwitcher integration', () => {
   it('flips the whole UI to Portuguese when the language toggle is used', async () => {
     renderApp('/')
     await userEvent.click(screen.getByRole('button', { name: /portugu/i }))
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/conversões honestas/i)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/converta pdf e markdown local/i)
     expect(screen.getByRole('link', { name: /^sobre$/i })).toBeInTheDocument()
   })
 })

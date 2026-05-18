@@ -92,9 +92,9 @@ const en: Dictionary = {
     about: 'About',
   },
   home: {
-    title: 'Honest conversions, no AI.',
+    title: 'Convert PDF and Markdown locally.',
     subtitle:
-      'Pure heuristics between PDF and Markdown. No prompts, no per-token cost, same output every run.',
+      'Deterministic heuristics between PDF and Markdown. Same input, same output, every run. No cloud, no subscriptions.',
     cards: {
       pdfToMd: {
         title: 'PDF → Markdown',
@@ -134,7 +134,7 @@ const en: Dictionary = {
   about: {
     title: 'About md-bridge',
     intro:
-      'Local conversion tool between PDF and Markdown. Everything runs through hand-written heuristics in Python with PyMuPDF and headless Chromium. No language-model calls, no uploads to external services.',
+      'Local conversion tool between PDF and Markdown. Everything runs through hand-written heuristics in Python with PyMuPDF and headless Chromium. The conversion is deterministic and stays on the host: no uploads to external services.',
     how: {
       title: 'How it works',
       p1:
@@ -153,7 +153,7 @@ const en: Dictionary = {
     more: {
       title: 'More details',
       body:
-        'See ARCHITECTURE.md at the repo root for the full spec, and REFERENCE.md inside the pdf-to-markdown skill for heuristic internals.',
+        'See REFERENCE.md inside packages/pdf-to-markdown/ for the heuristic internals, and docs/API.md for the REST walkthrough.',
     },
   },
   dropzone: {
@@ -200,9 +200,9 @@ const pt: Dictionary = {
     about: 'Sobre',
   },
   home: {
-    title: 'Conversões honestas, sem IA.',
+    title: 'Converta PDF e Markdown local.',
     subtitle:
-      'Heurística pura entre PDF e Markdown. Sem prompts, sem custo por token, mesma saída a cada execução.',
+      'Heurística determinística entre PDF e Markdown. Mesma entrada, mesma saída, em toda execução. Sem nuvem, sem assinatura.',
     cards: {
       pdfToMd: {
         title: 'PDF → Markdown',
@@ -242,7 +242,7 @@ const pt: Dictionary = {
   about: {
     title: 'Sobre o md-bridge',
     intro:
-      'Ferramenta local de conversão entre PDF e Markdown. Toda a lógica é heurística, escrita em Python com PyMuPDF e Chromium headless. Sem chamadas a modelos de linguagem, sem upload para serviços externos.',
+      'Ferramenta local de conversão entre PDF e Markdown. Toda a lógica é heurística, escrita em Python com PyMuPDF e Chromium headless. A conversão é determinística e roda no seu host: nenhum upload para serviços externos.',
     how: {
       title: 'Como funciona',
       p1:
@@ -261,7 +261,7 @@ const pt: Dictionary = {
     more: {
       title: 'Mais detalhes',
       body:
-        'Veja ARCHITECTURE.md na raiz para a especificação completa, e REFERENCE.md dentro da skill pdf-to-markdown para os bastidores da heurística.',
+        'Veja REFERENCE.md em packages/pdf-to-markdown/ para os bastidores da heurística, e docs/API.md para o passo a passo da REST.',
     },
   },
   dropzone: {
