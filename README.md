@@ -1,0 +1,244 @@
+# md-bridge
+
+> Convert between PDF and Markdown locally, deterministically, with a tiny
+> HTTP API and a React UI on top.
+
+`md-bridge` is a self-hosted document converter built on hand-written
+heuristics — same input, same output, every run. PyMuPDF reads PDFs, headless
+Chromium renders Markdown back into print-ready PDFs, FastAPI ties it all
+together, and a small React app drives the whole thing from the browser.
+
+[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
+[![Node 20+](https://img.shields.io/badge/node-20%2B-43853d.svg)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-30%20backend%20%2B%209%20web%20%2B%202%20e2e-brightgreen.svg)](#testing)
+
+---
+
+## Table of contents
+
+- [Highlights](#highlights)
+- [Demo flow](#demo-flow)
+- [Tech stack](#tech-stack)
+- [Quickstart](#quickstart)
+- [Project layout](#project-layout)
+- [Running it](#running-it)
+- [Testing](#testing)
+- [API reference](#api-reference)
+- [Internationalization](#internationalization)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Highlights
+
+- **PDF → Markdown** with heading detection (font size + PDF outline), list
+  recovery (bullet glyphs and numbered patterns), table extraction via
+  PyMuPDF's `find_tables`, and YAML front matter for metadata.
+- **Markdown → PDF** rendered through headless Chromium (Playwright) with
+  swappable CSS themes — drop a `.css` into `packages/markdown-to-pdf/templates/`
+  and it appears in the UI.
+- **`/api/inspect-pdf`** returns diagnostics (fonts, sizes, tagged-PDF flag,
+  OCR hint) so the UI can warn before conversion.
+- **No persistence**, no third-party calls. Every request is processed in a
+  temporary directory and removed before the response is returned.
+- **Bilingual UI** (English / Portuguese) with a header toggle that persists
+  the choice in `localStorage`.
+- **Interactive API docs** at `/docs` (Swagger UI) and `/redoc`, plus a
+  beginner-friendly walkthrough in [`docs/API.md`](docs/API.md).
+
+## Demo flow
+
+```
+┌──────────────┐   PDF file   ┌──────────────┐   structured MD   ┌──────────────┐
+│  React UI    │ ───────────▶ │  FastAPI     │ ────────────────▶ │  Browser     │
+│  (Vite)      │              │  /api/...    │                   │  download    │
+└──────┬───────┘              └──────┬───────┘                   └──────────────┘
+       │                              │
+       │       imports (no rewrite)   │
+       ▼                              ▼
+┌────────────────────────────────────────────┐
+│  packages/pdf-to-markdown   (heuristic)    │
+│  packages/markdown-to-pdf   (Chromium)     │
+└────────────────────────────────────────────┘
+```
+
+## Tech stack
+
+| Layer        | Choice                                     |
+| ------------ | ------------------------------------------ |
+| Backend      | FastAPI, Pydantic v2, Uvicorn              |
+| Conversion   | PyMuPDF, pypdf, Python-Markdown, Playwright|
+| Frontend     | Vite, React, TypeScript, React Router 6    |
+| Styling      | Plain CSS with design tokens, no framework |
+| Tests        | pytest, Vitest, React Testing Library, Playwright |
+| i18n         | Lightweight context provider, EN + PT      |
+
+## Quickstart
+
+You will need:
+
+- Python 3.13
+- Node 20+ and npm 10+
+
+```bash
+# 1. Backend: create venv and install dependencies
+cd apps/api
+python -m venv .venv
+.venv/Scripts/python.exe -m pip install -e ".[dev]"          # Linux/macOS: .venv/bin/python
+.venv/Scripts/python.exe -m playwright install chromium
+
+# 2. Frontend
+cd ../web
+npm install
+npx playwright install chromium
+
+# 3. Root-level concurrent runner
+cd ../..
+npm install
+
+# 4. Boot the dev servers (API on 8000, Vite on 5173)
+npm run dev
+```
+
+Open `http://localhost:5173` for the UI and `http://localhost:8000/docs`
+for the interactive API documentation.
+
+## Project layout
+
+```
+md-bridge/
+├── apps/
+│   ├── api/          FastAPI service: routes, services, schemas, tests
+│   └── web/          React app: pages, components, hooks, tests, e2e specs
+├── packages/
+│   ├── pdf-to-markdown/   Vendored converter (PyMuPDF heuristics)
+│   └── markdown-to-pdf/   Vendored renderer (Chromium via Playwright)
+├── tests/            Conversion-layer regression with golden files
+├── docs/
+│   └── API.md        Beginner-friendly REST walkthrough
+├── package.json      Root scripts (`npm run dev`, `npm run test:all`)
+└── README.md
+```
+
+## Running it
+
+```bash
+# Both servers in parallel (recommended for local dev)
+npm run dev
+
+# Or one at a time:
+npm run dev:api           # FastAPI with auto-reload on :8000
+npm run dev:web           # Vite on :5173 (proxies /api → :8000)
+```
+
+Production build for the frontend:
+
+```bash
+npm run build             # writes apps/web/dist/
+```
+
+For a production API run, drop `--reload` and pin a process manager of your
+choice:
+
+```bash
+apps/api/.venv/Scripts/python.exe -m uvicorn app.main:app --port 8000 --app-dir apps/api
+```
+
+## Testing
+
+The project has three independent test suites:
+
+```bash
+npm run test:api          # FastAPI + httpx TestClient   (30 tests, ~93% coverage)
+npm run test:regression   # Golden-file regression on the 5 design-digital PDFs
+npm run test:web          # Vitest + React Testing Library (9 tests)
+npm run test:e2e          # Playwright real-browser run   (2 critical flows)
+
+npm run test:all          # everything in sequence
+```
+
+Regression snapshots live under `tests/golden/`. After a deliberate change
+to the heuristics, regenerate them with:
+
+```bash
+apps/api/.venv/Scripts/python.exe -m pytest tests/ --update-golden
+```
+
+## API reference
+
+The FastAPI app ships with two built-in doc viewers:
+
+- **Swagger UI** (try-it-out playground): `http://localhost:8000/docs`
+- **ReDoc** (long-form reference): `http://localhost:8000/redoc`
+
+A friendly walkthrough with `curl` examples and the full error envelope
+catalogue lives in [`docs/API.md`](docs/API.md).
+
+Quick sample — convert a PDF:
+
+```bash
+curl -X POST http://localhost:8000/api/pdf-to-md \
+  -F "file=@whitepaper.pdf" \
+  -F 'options={"front_matter": true}'
+```
+
+Quick sample — render Markdown back to PDF:
+
+```bash
+curl -X POST http://localhost:8000/api/md-to-pdf \
+  -F "file=@notes.md" \
+  -F 'options={"theme":"default"}' \
+  --output notes.pdf
+```
+
+## Internationalization
+
+The UI ships with English (default) and Portuguese. The header carries a
+two-button toggle (`EN` / `PT`); the choice is persisted in `localStorage`
+under `md-bridge:locale`.
+
+To add a new locale:
+
+1. Open `apps/web/src/i18n/dictionaries.ts`.
+2. Add a new entry to the `Locale` union and to the `LOCALES` array.
+3. Translate the `Dictionary` shape and add it to `DICTIONARIES`.
+
+The header toggle picks the new locale up automatically.
+
+## Themes (Markdown → PDF)
+
+Themes are plain CSS files under `packages/markdown-to-pdf/templates/`. To
+add one, drop `<name>.css` into that folder; the API will return it from
+`GET /api/themes` and the UI will show it as an option. The default theme is
+layered first, so a custom theme only has to override what it cares about.
+
+## Limits
+
+- 50 MB cap per upload
+- 60 s timeout per conversion
+- No OCR (yet) — scanned PDFs need Tesseract before being submitted
+- Tables with merged cells can be flattened by the heuristic extractor
+
+## Contributing
+
+Issues and pull requests are welcome. The friendliest path for a first
+contribution:
+
+1. Fork and clone.
+2. Run the full test suite (`npm run test:all`) once to make sure your
+   environment is healthy.
+3. Open a draft PR early — small, focused changes get merged faster.
+4. Add or update tests for any behavior change. Golden-file changes need
+   a one-line justification in the PR description.
+
+Code style:
+
+- Backend: Python 3.13 idioms, type hints, narrow `try/except`.
+- Frontend: TypeScript strict, no `any` in shared code, plain CSS with
+  design tokens.
+- Both: no comments that describe *what* the code does — names should
+  carry that. Comments are reserved for *why*.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).

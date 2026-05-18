@@ -1,0 +1,48 @@
+:root {
+  /* Tipografia */
+  --font-display: "Fraunces", "Spectral", Georgia, serif;
+  --font-body: "IBM Plex Sans", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Consolas", monospace;
+
+  /* Escala tipográfica (modular ratio 1.25) */
+  --fs-xs: 0.8rem;
+  --fs-sm: 1rem;
+  --fs-md: 1.25rem;
+  --fs-lg: 1.563rem;
+  --fs-xl: 2.441rem;
+  --fs-2xl: 3.815rem;
+
+  /* Cor */
+  --c-bg: #f7f3ec;
+  --c-bg-elev: #fdfaf3;
+  --c-ink: #1a1a1a;
+  --c-ink-soft: #555;
+  --c-rule: #d8d2c5;
+  --c-accent: #c8362f;
+  --c-accent-soft: #f1d8d5;
+  --c-ok: #2e7d4a;
+  --c-warn: #b8860b;
+
+  /* Espaço (escala de 4) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  /* Raio */
+  --r-sm: 2px;
+  --r-md: 6px;
+
+  /* Sombras */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-2: 0 6px 18px rgba(0, 0, 0, 0.08);
+
+  /* Motion */
+  --t-fast: 120ms;
+  --t-base: 220ms;
+  --easing: cubic-bezier(0.2, 0.8, 0.2, 1);
+}

@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+apps/api/.venv/
+
+# Node
+node_modules/
+apps/web/dist/
+apps/web/coverage/
+
+# Playwright
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/.playwright/
+
+# Editor / OS
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Local AI assistant / agent tooling (not part of the project)
+.claude/
+.agents/
+.aider*
+.cursor/
+.cursorrules
+.copilot/
+AGENTS.md
+CLAUDE.md
+CODEX.md
+
+# Internal planning / design docs (not part of the public repo)
+ARCHITECTURE.md
+
+# Local fixtures and generated outputs (developer machine, not versioned)
+Arquivos-pdf/*
+!Arquivos-pdf/.gitkeep
+output/

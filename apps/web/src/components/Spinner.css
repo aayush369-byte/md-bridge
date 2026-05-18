@@ -1,0 +1,15 @@
+.spinner {
+  display: inline-block;
+  color: var(--c-accent);
+  animation: spinner-rotate 0.9s linear infinite;
+}
+
+.spinner svg {
+  display: block;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,108 @@
+"""FastAPI application factory."""
+from __future__ import annotations
+
+import logging
+
+from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+
+from app import __version__
+from app.config import CORS_ORIGINS
+from app.errors import (
+    ApiError,
+    api_error_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
+from app.routes import convert, health, inspect, themes
+
+
+API_DESCRIPTION = """
+**md-bridge** is a small, opinionated HTTP service that converts between PDF
+and Markdown using hand-written heuristics. No language models, no external
+calls, deterministic output.
+
+## What it does
+
+- **`POST /api/pdf-to-md`** — extract structured Markdown from a PDF.
+- **`POST /api/md-to-pdf`** — render a Markdown file to PDF through Chromium.
+- **`POST /api/inspect-pdf`** — return diagnostics about a PDF (fonts, sizes, tagged-PDF check).
+- **`GET  /api/themes`** — list CSS themes available for Markdown → PDF.
+- **`GET  /api/health`** — liveness probe.
+
+## Try it out
+
+The interactive docs you are reading right now (powered by Swagger UI) let
+you call any endpoint with a real file. Click **Try it out**, attach a file,
+press **Execute**.
+
+A friendlier walkthrough with `curl` examples lives in
+[docs/API.md](https://github.com/your-org/md-bridge/blob/main/docs/API.md).
+
+## Limits
+
+- Upload cap: **50 MB** per request.
+- Per-request timeout: **60 seconds**.
+- No persistence: every file is processed in a temporary directory and removed
+  before the response is returned.
+- No OCR (v1): scanned PDFs need Tesseract before being submitted.
+"""
+
+
+def create_app() -> FastAPI:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s :: %(message)s",
+    )
+
+    app = FastAPI(
+        title="md-bridge API",
+        version=__version__,
+        summary="Heuristic, no-AI conversions between PDF and Markdown.",
+        description=API_DESCRIPTION,
+        contact={
+            "name": "md-bridge",
+            "url": "https://github.com/your-org/md-bridge",
+        },
+        license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
+        openapi_tags=[
+            {"name": "health", "description": "Service liveness."},
+            {
+                "name": "convert",
+                "description": "Conversion endpoints between PDF and Markdown.",
+            },
+            {
+                "name": "inspect",
+                "description": "Read-only diagnostics about an uploaded PDF.",
+            },
+            {
+                "name": "themes",
+                "description": "CSS themes available for Markdown → PDF rendering.",
+            },
+        ],
+        docs_url="/docs",
+        redoc_url="/redoc",
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=CORS_ORIGINS,
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["*"],
+    )
+
+    app.add_exception_handler(ApiError, api_error_handler)
+    app.add_exception_handler(HTTPException, http_exception_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
+
+    app.include_router(health.router)
+    app.include_router(convert.router)
+    app.include_router(inspect.router)
+    app.include_router(themes.router)
+
+    return app
+
+
+app = create_app()

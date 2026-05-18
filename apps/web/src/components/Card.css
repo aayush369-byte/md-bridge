@@ -1,0 +1,14 @@
+.card {
+  border-radius: var(--r-md);
+  padding: var(--s-6);
+}
+
+.card--surface {
+  background: var(--c-bg-elev);
+  box-shadow: var(--shadow-1);
+}
+
+.card--outline {
+  background: transparent;
+  border: 1px solid var(--c-rule);
+}

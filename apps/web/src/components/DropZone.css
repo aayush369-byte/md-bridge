@@ -1,0 +1,64 @@
+.dropzone {
+  height: 240px;
+  border: 2px dashed var(--c-rule);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-bg-elev);
+  cursor: pointer;
+  transition: border-color var(--t-base) var(--easing),
+    background var(--t-base) var(--easing);
+  position: relative;
+  outline: none;
+}
+
+.dropzone:focus-visible {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-soft);
+}
+
+.dropzone:hover,
+.dropzone.is-over {
+  border-color: var(--c-accent);
+  background: var(--c-accent-soft);
+}
+
+.dropzone.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.dropzone__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dropzone__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  text-align: center;
+  padding: var(--s-4);
+}
+
+.dropzone__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  letter-spacing: -0.01em;
+}
+
+.dropzone__hint {
+  color: var(--c-ink-soft);
+  font-size: var(--fs-xs);
+}
+
+.dropzone__error {
+  color: var(--c-accent);
+  font-size: var(--fs-xs);
+  margin-top: var(--s-2);
+}
