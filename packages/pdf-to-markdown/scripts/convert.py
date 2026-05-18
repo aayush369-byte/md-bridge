@@ -237,8 +237,12 @@ def annotate_spans_with_links(blocks: list[Block], page_links: list[dict]) -> No
         uri = link.get("uri")
         if not uri:
             page_dest = link.get("page")
-            if page_dest is not None and page_dest >= 0:
-                uri = f"#page-{page_dest + 1}"
+            try:
+                page_idx = int(page_dest) if page_dest is not None else -1
+            except (TypeError, ValueError):
+                page_idx = -1
+            if page_idx >= 0:
+                uri = f"#page-{page_idx + 1}"
         if not uri:
             continue
         targets.append((tx0, ty0, tx1, ty1, uri))
