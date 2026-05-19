@@ -1,0 +1,29 @@
+# EditorConfig keeps line endings, indentation, and trailing whitespace
+# consistent across editors and operating systems. See https://editorconfig.org/.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# Web and config files use 2-space indent
+[*.{js,jsx,mjs,cjs,ts,tsx,json,jsonc,yml,yaml,css,html}]
+indent_size = 2
+
+# Markdown allows trailing spaces (two-space hard line break)
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# Python sticks with PEP 8 4-space indent (the default above already covers this)
+[*.py]
+indent_size = 4
+
+# Makefiles need real tabs
+[Makefile]
+indent_style = tab
