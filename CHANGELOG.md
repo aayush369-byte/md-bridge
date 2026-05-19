@@ -22,6 +22,23 @@ If a section is empty in a release, the section is omitted entirely.
   conflict markers, large files) before every commit. Documented in
   `CONTRIBUTING.md`.
 
+### Changed
+
+- GitHub Actions bumped to current majors:
+  `actions/checkout` v4 → v6, `actions/setup-python` v5 → v6,
+  `github/codeql-action` v3 → v4. Clears the Node.js 20 deprecation
+  warnings on the runner.
+- Docker base images bumped: web `node:22-alpine` → `node:26-alpine`,
+  web runtime `nginx:1.27-alpine` → `nginx:1.31-alpine`.
+- npm devDependencies bumped: `typescript-eslint` 8.59.3 → 8.59.4
+  (patch), `@types/node` 24.12.4 → 25.9.0.
+
+### Security
+
+- Enabled GitHub-native repo features: secret scanning, push
+  protection, private vulnerability reporting, Dependabot security
+  updates.
+
 ## [0.1.0] — 2026-05-19
 
 First tagged release. md-bridge is a self-hosted PDF and Markdown
