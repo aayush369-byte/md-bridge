@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { BatchPanel } from '../components/BatchPanel'
 import { Button } from '../components/Button'
 import { ConvertButton } from '../components/ConvertButton'
@@ -20,14 +20,13 @@ export function MdToPdf() {
     toBlobUrl: (blob) => URL.createObjectURL(blob),
   })
 
-  // Pick up the latest completed item so the preview follows the run.
-  useEffect(() => {
-    if (selectedId && batch.items.some((it) => it.id === selectedId)) return
-    const lastDone = [...batch.items].reverse().find((it) => it.status === 'done')
-    if (lastDone) setSelectedId(lastDone.id)
-  }, [batch.items, selectedId])
-
-  const selected = batch.items.find((it) => it.id === selectedId) ?? null
+  // Pick up the latest completed item so the preview follows the run. Derived
+  // during render so the user's explicit selection wins when it is still
+  // valid, and the most recent successful conversion shows otherwise.
+  const fallbackId = [...batch.items].reverse().find((it) => it.status === 'done')?.id ?? null
+  const effectiveSelectedId =
+    selectedId && batch.items.some((it) => it.id === selectedId) ? selectedId : fallbackId
+  const selected = batch.items.find((it) => it.id === effectiveSelectedId) ?? null
 
   const handleFiles = (files: File[]) => batch.add(files)
 
@@ -110,7 +109,7 @@ export function MdToPdf() {
             onRemove={batch.remove}
             onDownload={onDownload}
             onSelect={(it) => setSelectedId(it.id)}
-            selectedId={selectedId}
+            selectedId={effectiveSelectedId}
             downloadLabel={t.mdToPdf.download}
           />
         </div>

@@ -31,12 +31,12 @@ export function PdfToMd() {
   })
   const inspect = useInspect()
 
-  // Auto-select the most recently finished item so the preview follows the run.
-  useEffect(() => {
-    if (selectedId && batch.items.some((it) => it.id === selectedId)) return
-    const lastDone = [...batch.items].reverse().find((it) => it.status === 'done')
-    if (lastDone) setSelectedId(lastDone.id)
-  }, [batch.items, selectedId])
+  // Auto-select the most recently finished item so the preview follows the
+  // run. Derived during render so the user's explicit selection wins when it
+  // is still valid, and the most recent successful conversion shows otherwise.
+  const fallbackId = [...batch.items].reverse().find((it) => it.status === 'done')?.id ?? null
+  const effectiveSelectedId =
+    selectedId && batch.items.some((it) => it.id === selectedId) ? selectedId : fallbackId
 
   // Run inspect on the first file so the diagnostic panel still has something
   // to show (helps the user judge if OCR is needed before kicking off the run).
@@ -48,7 +48,7 @@ export function PdfToMd() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firstName])
 
-  const selected = batch.items.find((it) => it.id === selectedId) ?? null
+  const selected = batch.items.find((it) => it.id === effectiveSelectedId) ?? null
 
   const handleFiles = (files: File[]) => batch.add(files)
 
@@ -92,7 +92,7 @@ export function PdfToMd() {
             onRemove={batch.remove}
             onDownload={onDownload}
             onSelect={(it) => setSelectedId(it.id)}
-            selectedId={selectedId}
+            selectedId={effectiveSelectedId}
             downloadLabel={t.pdfToMd.download}
           />
         </div>

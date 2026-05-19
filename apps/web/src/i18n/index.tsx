@@ -1,3 +1,7 @@
+/* eslint-disable react-refresh/only-export-components --
+ * Co-locating the provider, the hook, and the types in a single entry-point
+ * keeps the i18n surface easy to discover. The fast-refresh penalty only
+ * affects HMR on saves to this file, which the team accepts. */
 import {
   createContext,
   useCallback,
